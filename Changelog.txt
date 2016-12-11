@@ -5,5 +5,6 @@
   * initial version
   * supported connection methods:
       - no proxy
-      - HTTP proxy: only CONNECT method
+      - HTTP proxy: only CONNECT method and without authentication or basic authentication
       - SOCKS5 (RFC 1928): only without authentication or username/password
+      - SOCKS4: no active support for IDENT authentication
