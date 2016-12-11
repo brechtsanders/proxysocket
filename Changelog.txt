@@ -1,0 +1,9 @@
+0.0.1
+
+2016-12-05  Brecht Sanders  https://github.com/brechtsanders/
+
+  * initial version
+  * supported connection methods:
+      - no proxy
+      - HTTP proxy: only CONNECT method
+      - SOCKS5 (RFC 1928): only without authentication or username/password
