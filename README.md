@@ -1,6 +1,6 @@
 proxysocket
 ===========
-Portable C library for proxy support, designed to be used as a drop-in replacement for connect().
+Portable C library for proxy client support, designed to be used as a drop-in replacement for connect().
 
 Description
 -----------

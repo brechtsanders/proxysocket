@@ -19,7 +19,7 @@
 #define PROXY_PASS NULL
 /**/
 
-/**/
+/*/
 #define PROXY_TYPE PROXYSOCKET_TYPE_WEB_CONNECT
 #define PROXY_HOST "10.0.0.10"
 #define PROXY_PORT 8080
@@ -71,6 +71,15 @@
 #define PROXY_USER NULL
 #define PROXY_PASS NULL
 // ssh -D 10.0.0.1:1080 -p 22 user@server
+/**/
+
+/**/
+#define PROXY_TYPE PROXYSOCKET_TYPE_SOCKS5
+#define PROXY_HOST "127.0.0.1"
+#define PROXY_PORT 9150
+#define PROXY_USER NULL
+#define PROXY_PASS NULL
+// when running Tor
 /**/
 
 
