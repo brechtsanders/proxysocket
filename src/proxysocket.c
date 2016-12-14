@@ -448,11 +448,13 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
   //resolve destination host
   if ((hostaddr = get_ipv4_address(dsthost)) == INADDR_NONE)
     ERROR_DISCONNECT_AND_ABORT("Error looking up host: %s", dsthost)
+  write_log_info(proxy, PROXYSOCKET_LOG_DEBUG, "Resolved host %s to IP: %s",dsthost, inet_ntoa(*(struct in_addr*)&hostaddr));
   //resolve proxy host address
   proxyaddr = INADDR_NONE;
   if (proxyinfo->proxyhost && *proxyinfo->proxyhost) {
     if ((proxyaddr = get_ipv4_address(proxyinfo->proxyhost)) == INADDR_NONE)
       ERROR_DISCONNECT_AND_ABORT("Error looking up proxy host: %s", proxyinfo->proxyhost)
+    write_log_info(proxy, PROXYSOCKET_LOG_DEBUG, "Resolved proxy host %s to IP: %s", proxyinfo->proxyhost, inet_ntoa(*(struct in_addr*)&proxyaddr));
   }
   if (proxyaddr == INADDR_NONE && proxyinfo->proxytype != PROXYSOCKET_TYPE_NONE)
     ERROR_DISCONNECT_AND_ABORT("Missing proxy host")
@@ -487,10 +489,11 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
   } else if (proxyinfo->proxytype == PROXYSOCKET_TYPE_SOCKS4) {
     /* * * CONNECTION USING SOCKS4 PROXY * * */
     //connect to the SOCKS4 proxy server
-    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connecting to SOCKS4 proxy: %s:%lu", inet_ntoa(*(struct in_addr*)&proxyaddr), (unsigned long)proxyinfo->proxyport);
+    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Preparing to connect to SOCKS4 proxy: %s:%lu", inet_ntoa(*(struct in_addr*)&proxyaddr), (unsigned long)proxyinfo->proxyport);
     if ((sock = proxyinfo_connect(proxy, proxyinfo->next, proxyinfo->proxyhost, proxyinfo->proxyport, errmsg)) == INVALID_SOCKET)
       //ERROR_DISCONNECT_AND_ABORT("Error connecting to SOCKS4 proxy: %s:%lu", proxyinfo->proxyhost, (unsigned long)proxyinfo->proxyport);/////
       ERROR_DISCONNECT_AND_ABORT(NULL);
+    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connected to SOCKS4 proxy: %s:%lu", inet_ntoa(*(struct in_addr*)&proxyaddr), (unsigned long)proxyinfo->proxyport);
     //send connect command
     struct socks4_connect_request request = { SOCKS4_VERSION, SOCKS4_COMMAND_CONNECT, htons(dstport), hostaddr, {0} };
     if (!(proxyinfo->proxyuser && *proxyinfo->proxyuser)) {
@@ -518,7 +521,7 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
       write_log_info(proxy, PROXYSOCKET_LOG_WARNING, "Invalid SOCKS4 reply code version (%u)", (unsigned int)request.socks_version);
     switch (request.socks_command) {
       case SOCKS4_STATUS_SUCCESS :
-        write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connection via SOCKS4 proxy established");
+        write_log_info(proxy, PROXYSOCKET_LOG_INFO, "SOCKS4 proxy connection established to: %s:%lu", inet_ntoa(*(struct in_addr*)&hostaddr), (unsigned long)dstport);
         break;
       case SOCKS4_STATUS_FAILED :
         ERROR_DISCONNECT_AND_ABORT("SOCKS4 connection rejected or failed")
@@ -532,10 +535,11 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
   } else if (proxyinfo->proxytype == PROXYSOCKET_TYPE_SOCKS5) {
     /* * * CONNECTION USING SOCKS5 PROXY * * */
     //connect to the SOCKS5 proxy server
-    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connecting to SOCKS5 proxy: %s:%lu", proxyinfo->proxyhost, (unsigned long)proxyinfo->proxyport);
+    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Preparing to connect to SOCKS5 proxy: %s:%lu", proxyinfo->proxyhost, (unsigned long)proxyinfo->proxyport);
     if ((sock = proxyinfo_connect(proxy, proxyinfo->next, proxyinfo->proxyhost, proxyinfo->proxyport, errmsg)) == INVALID_SOCKET)
       //ERROR_DISCONNECT_AND_ABORT("Error connecting to SOCKS5 proxy: %s:%lu", proxyinfo->proxyhost, (unsigned long)proxyinfo->proxyport);/////
       ERROR_DISCONNECT_AND_ABORT(NULL);
+    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connected to SOCKS5 proxy: %s:%lu", proxyinfo->proxyhost, (unsigned long)proxyinfo->proxyport);
     //send initial data
     if (!(proxyinfo->proxyuser && *proxyinfo->proxyuser) && !(proxyinfo->proxypass && *proxyinfo->proxypass)) {
       uint8_t initsend[] = {SOCKS5_VERSION, 1, SOCKS5_METHOD_NOAUTH};
@@ -586,7 +590,7 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
       memcpy(authbuf + 2, proxyinfo->proxyuser, proxyuserlen);
       authbuf[2 + proxyuserlen] = proxypasslen;
       memcpy(authbuf + 3 + proxyuserlen, proxyinfo->proxypass, proxypasslen);
-      write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Sending authentication");
+      write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Sending authentication (login: %s)", (proxyinfo->proxyuser ? proxyinfo->proxyuser : NULL));
       if (send(sock, (void*)authbuf, authbuflen, 0) < authbuflen) {
         free(authbuf);
         ERROR_DISCONNECT_AND_ABORT("Error sending authentication data to SOCKS5 proxy")
@@ -596,8 +600,12 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
         ERROR_DISCONNECT_AND_ABORT("Connection lost while reading authentication response from SOCKS5 proxy")
       if (initrecv[0] != 1)
         ERROR_DISCONNECT_AND_ABORT("SOCKS5 proxy subnegotiation version mismatch (%u)", (unsigned int)initrecv[0])
-      write_log_info(proxy, PROXYSOCKET_LOG_INFO, "SOCKS5 status: %u", (unsigned int)initrecv[1]);
-      //TO DO: check and report status
+      if (initrecv[1] == SOCKS5_STATUS_CONNECTION_REFUSED)
+        ERROR_DISCONNECT_AND_ABORT("SOCKS5 access denied")
+      if (initrecv[1] != 0)
+        ERROR_DISCONNECT_AND_ABORT("SOCKS5 authentication failed with status code %u (login: %s)", (unsigned int)initrecv[1], (proxyinfo->proxyuser ? proxyinfo->proxyuser : NULL))
+      /////TO DO: check and report status
+      //write_log_info(proxy, PROXYSOCKET_LOG_INFO, "SOCKS5 authentication succeeded (login: %s)", (proxyinfo->proxyuser ? proxyinfo->proxyuser : NULL));
     }
     //send connect command
     struct socks5_connect_request request = { SOCKS5_VERSION, SOCKS5_COMMAND_CONNECT, 0, SOCKS5_ADDRESSTYPE_IPV4, hostaddr, htons(dstport) };
@@ -611,7 +619,7 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
       ERROR_DISCONNECT_AND_ABORT("SOCKS5 proxy version mismatch (%u)", (unsigned int)initrecv[0])
     switch (initrecv[1]) {
       case SOCKS5_STATUS_SUCCESS :
-        write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connection via SOCKS5 proxy established");
+        write_log_info(proxy, PROXYSOCKET_LOG_INFO, "SOCKS5 proxy connection established to: %s:%lu", inet_ntoa(*(struct in_addr*)&hostaddr), (unsigned long)dstport);
         break;
       case SOCKS5_STATUS_SOCKS_SERVER_FAILURE :
         ERROR_DISCONNECT_AND_ABORT("General SOCKS5 server failure")
@@ -679,10 +687,11 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
   } else if (proxyinfo->proxytype == PROXYSOCKET_TYPE_WEB_CONNECT) {
     /* * * CONNECTION USING HTTP/WEB PROXY * * */
     //connect to the HTTP proxy server
-    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connecting to web proxy: %s:%lu", proxyinfo->proxyhost, (unsigned long)proxyinfo->proxyport);
+    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Preparing to connect to web proxy: %s:%lu", proxyinfo->proxyhost, (unsigned long)proxyinfo->proxyport);
     if ((sock = proxyinfo_connect(proxy, proxyinfo->next, proxyinfo->proxyhost, proxyinfo->proxyport, errmsg)) == INVALID_SOCKET)
       //ERROR_DISCONNECT_AND_ABORT("Error connecting to web proxy: %s:%lu", proxyinfo->proxyhost, (unsigned long)proxyinfo->proxyport);/////
       ERROR_DISCONNECT_AND_ABORT(NULL);
+    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connected to web proxy: %s:%lu", proxyinfo->proxyhost, (unsigned long)proxyinfo->proxyport);
     //prepare basic authentication data
     char* proxyauth = NULL;
     if (proxyinfo->proxyuser && *proxyinfo->proxyuser) {
@@ -711,8 +720,8 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
       free(proxyauth);
     result = send_http_request(sock, proxycmd, &response);
     free(proxycmd);
-    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "HTTP proxy response: %i", result);
-    write_log_info(proxy, PROXYSOCKET_LOG_DEBUG, "HTTP proxy response details:\n%s", response);
+    if (result != 200)
+      write_log_info(proxy, PROXYSOCKET_LOG_DEBUG, "HTTP proxy response code %i, details:\n%s", result, response);
     free(response);
     response = NULL;
     if (result < 100 || result >= 600)
@@ -748,8 +757,8 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
       ERROR_DISCONNECT_AND_ABORT("Web proxy returned unexpected redirection")
     if (result < 100 || result >= 300)
       ERROR_DISCONNECT_AND_ABORT("Web proxy error")
-    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connected to %s:%u via proxy %s:%u", dsthost, dstport, inet_ntoa(*(struct in_addr*)&proxyaddr), (unsigned long)proxyinfo->proxyport);/////
-    //write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connected to %s:%u", dsthost, dstport);
+    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Web proxy connection established to: %s:%lu", inet_ntoa(*(struct in_addr*)&hostaddr), (unsigned long)dstport);
+    //write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connected to %s:%u via proxy %s:%u", dsthost, dstport, inet_ntoa(*(struct in_addr*)&proxyaddr), (unsigned long)proxyinfo->proxyport);/////
   } else {
     /* * * INVALID PROXY TYPE SPECIFIED * * */
     ERROR_DISCONNECT_AND_ABORT("Unknown proxy type")

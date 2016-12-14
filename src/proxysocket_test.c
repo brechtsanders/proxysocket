@@ -55,7 +55,7 @@
 // in a connected PuTTY SSH session go to Connection / SSH / Tunnels and add a forwarded port with Source port 1080, leave Destination port empty, select Dynamic and Audo and press Add
 /**/
 
-/*/
+/**/
 #define PROXY_TYPE PROXYSOCKET_TYPE_SOCKS5
 #define PROXY_HOST "localhost"
 #define PROXY_PORT 1080
@@ -73,7 +73,7 @@
 // ssh -D 10.0.0.1:1080 -p 22 user@server
 /**/
 
-/**/
+/*/
 #define PROXY_TYPE PROXYSOCKET_TYPE_SOCKS5
 #define PROXY_HOST "127.0.0.1"
 #define PROXY_PORT 9150
@@ -101,11 +101,16 @@ int main ()
   SOCKET sock;
   char* errmsg;
   proxysocket_initialize();
-  proxysocketconfig proxy = proxysocketconfig_create(PROXY_TYPE, PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS);
+  //proxysocketconfig proxy = proxysocketconfig_create(PROXY_TYPE, PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS);
 //proxysocketconfig_add_proxy(proxy, PROXY_TYPE, PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS);
 //proxysocketconfig_add_proxy(proxy, PROXY_TYPE, PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS);
 //proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_SOCKS4, "127.0.0.1", 1080, NULL, NULL);
 //proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_SOCKS5, "127.0.0.1", 1080, NULL, NULL);
+proxysocketconfig proxy = proxysocketconfig_create_direct();
+proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_SOCKS5, "127.0.0.1", 1080, "3APA3A", "3apa3a");
+proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_SOCKS5, "127.0.0.1", 1080, "3APA3A", "3apa3a");
+proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_SOCKS5, "127.0.0.1", 1080, "3APA3A", "3apa3a");
+proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_WEB_CONNECT, "10.0.0.1", 8080, NULL, NULL);
 //proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_WEB_CONNECT, "10.0.0.1", 8080, NULL, NULL);
   proxysocketconfig_set_logging(proxy, logger, (void*)stdout);
   //connect
