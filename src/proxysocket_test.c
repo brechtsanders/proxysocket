@@ -108,8 +108,6 @@ int main ()
 //proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_SOCKS5, "127.0.0.1", 1080, NULL, NULL);
 proxysocketconfig proxy = proxysocketconfig_create_direct();
 proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_SOCKS5, "127.0.0.1", 1080, "3APA3A", "3apa3a");
-proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_SOCKS5, "127.0.0.1", 1080, "3APA3A", "3apa3a");
-proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_SOCKS5, "127.0.0.1", 1080, "3APA3A", "3apa3a");
 proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_WEB_CONNECT, "10.0.0.1", 8080, NULL, NULL);
 //proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_WEB_CONNECT, "10.0.0.1", 8080, NULL, NULL);
   proxysocketconfig_set_logging(proxy, logger, (void*)stdout);
