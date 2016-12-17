@@ -2,26 +2,32 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="proxysocket" />
+		<Option title="proxysocket_static" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
 				<Option output="../bin/Debug/proxysocket" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
 				<Option object_output="../obj/Debug/" />
-				<Option type="1" />
+				<Option type="2" />
 				<Option compiler="gcc" />
+				<Option createDefFile="1" />
 				<Compiler>
+					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
 				<Option output="../bin/Release/proxysocket" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
 				<Option object_output="../obj/Release/" />
-				<Option type="1" />
+				<Option type="2" />
 				<Option compiler="gcc" />
+				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -29,20 +35,26 @@
 			</Target>
 			<Target title="Debug32">
 				<Option output="../bin/Debug32/proxysocket" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
 				<Option object_output="../obj/Debug32/" />
-				<Option type="1" />
+				<Option type="2" />
 				<Option compiler="MINGW32" />
+				<Option createDefFile="1" />
 				<Compiler>
+					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
 			<Target title="Release32">
 				<Option output="../bin/Release32/proxysocket" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
 				<Option object_output="../obj/Release32/" />
-				<Option type="1" />
+				<Option type="2" />
 				<Option compiler="MINGW32" />
+				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -50,20 +62,26 @@
 			</Target>
 			<Target title="Debug64">
 				<Option output="../bin/Debug64/proxysocket" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
 				<Option object_output="../obj/Debug64/" />
-				<Option type="1" />
+				<Option type="2" />
 				<Option compiler="MINGW64" />
+				<Option createDefFile="1" />
 				<Compiler>
+					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
 			<Target title="Release64">
 				<Option output="../bin/Release64/proxysocket" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
 				<Option object_output="../obj/Release64/" />
-				<Option type="1" />
+				<Option type="2" />
 				<Option compiler="MINGW64" />
+				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -71,20 +89,12 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Wall" />
-			<Add option="-mno-ms-bitfields" />
-			<Add option="-DSTATIC" />
+			<Add option="-DBUILD_PROXYSOCKET_STATIC" />
 		</Compiler>
-		<Linker>
-			<Add library="ws2_32" />
-		</Linker>
 		<Unit filename="../src/proxysocket.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../src/proxysocket.h" />
-		<Unit filename="../src/proxysocket_test.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
