@@ -773,10 +773,18 @@ DLL_EXPORT_PROXYSOCKET SOCKET proxysocket_connect (proxysocketconfig proxy, cons
 
 DLL_EXPORT_PROXYSOCKET void proxysocket_disconnect (proxysocketconfig proxy, SOCKET sock)
 {
-  write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Disconnecting");
+  int status;
+  write_log_info(proxy, PROXYSOCKET_LOG_DEBUG, "Closing connection");
 #if defined(__WIN32__) || defined(__DJGPP__)
-  closesocket(sock);
+  //shutdown(sock, SD_BOTH);
+  status = closesocket(sock);
+  if (status != 0 && status != WSAEWOULDBLOCK)
 #else
-  close(sock);
+  //shutdown(sock, SHUT_RDWR);
+  status = close(sock);
+  if (status != 0)
 #endif
+    write_log_info(proxy, PROXYSOCKET_LOG_ERROR, "Failed to close connection (error: %i)", status);
+  else
+    write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connection closed");
 }

@@ -82,7 +82,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../src/proxysocket.h" />
-		<Unit filename="../src/proxysocket_test.c">
+		<Unit filename="../examples/proxysocket_test.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>

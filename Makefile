@@ -60,10 +60,10 @@ OS_LINK_FLAGS = -shared -Wl,-soname,$@ $(STRIPFLAG)
 endif
 
 TOOLS_BIN = 
-EXAMPLES_BIN = proxysocket_test$(BINEXT)
+EXAMPLES_BIN = proxysocket_test$(BINEXT) example_ipify$(BINEXT)
 
 COMMON_PACKAGE_FILES = README.md LICENSE.txt Changelog.txt
-SOURCE_PACKAGE_FILES = $(COMMON_PACKAGE_FILES) Makefile doc/Doxyfile src/*.h src/*.c build/*.cbp
+SOURCE_PACKAGE_FILES = $(COMMON_PACKAGE_FILES) Makefile doc/Doxyfile src/*.h src/*.c examples/*.c build/*.cbp
 
 default: all
 
@@ -90,11 +90,11 @@ $(LIBPREFIX)proxysocket$(SOEXT): $(PROXYSOCKET_OBJ:%.o=%.shared.o)
 
 examples: $(EXAMPLES_BIN)
 
-proxysocket_test$(BINEXT): src/proxysocket_test.static.o $(LIBPREFIX)proxysocket$(LIBEXT)
-	$(CC) -o $@ src/$(@:%$(BINEXT)=%.static.o) $(LIBPREFIX)proxysocket$(LIBEXT) $(PROXYSOCKET_LDFLAGS) $(LDFLAGS)
+%$(BINEXT): examples/%.static.o $(LIBPREFIX)proxysocket$(LIBEXT)
+	$(CC) -o $@ examples/$(@:%$(BINEXT)=%.static.o) $(LIBPREFIX)proxysocket$(LIBEXT) $(PROXYSOCKET_LDFLAGS) $(LDFLAGS)
 
-#proxysocket_test$(BINEXT): src/proxysocket_test.shared.o $(LIBPREFIX)proxysocket$(LIBEXT)
-#	$(CC) -o $@ src/$(@:%$(BINEXT)=%.shared.o) $(LIBPREFIX)proxysocket$(LIBEXT) $(PROXYSOCKET_LDFLAGS) $(LDFLAGS)
+#%$(BINEXT): examples/%.shared.o $(LIBPREFIX)proxysocket$(LIBEXT)
+#	$(CC) -o $@ examples/$(@:%$(BINEXT)=%.shared.o) $(LIBPREFIX)proxysocket$(LIBEXT) $(PROXYSOCKET_LDFLAGS) $(LDFLAGS)
 
 tools: $(TOOLS_BIN)
 
@@ -134,6 +134,6 @@ binarypackage: version
 
 .PHONY: clean
 clean:
-	$(RM) src/*.o *$(LIBEXT) *$(SOEXT) $(TOOLS_BIN) $(EXAMPLES_BIN) version proxysocket-*.tar.xz doc/doxygen_sqlite3.db
+	$(RM) src/*.o examples/*.o *$(LIBEXT) *$(SOEXT) $(TOOLS_BIN) $(EXAMPLES_BIN) version proxysocket-*.tar.xz doc/doxygen_sqlite3.db
 	$(RMDIR) doc/html doc/man
 
