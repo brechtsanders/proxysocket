@@ -1,5 +1,13 @@
 0.0.2
 
+2016-12-17  Brecht Sanders  https://github.com/brechtsanders/
+
+  * added function socket_receiveline()
+
+2016-12-17  Brecht Sanders  https://github.com/brechtsanders/
+
+  * added example application example_ipify
+
 2016-12-05  Brecht Sanders  https://github.com/brechtsanders/
 
   * improved log messages

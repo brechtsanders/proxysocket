@@ -138,39 +138,6 @@ char* make_base64_string (const char* str)
   return buf;
 }
 
-#define READ_BUFFER_SIZE 128
-
-char* receive_line (SOCKET sock)
-{
-  char* buf = (char*)malloc(READ_BUFFER_SIZE);
-  int bufpos = 0;
-  int bufsize = READ_BUFFER_SIZE;
-  int n;
-  int i;
-  while ((n = recv(sock, buf + bufpos, READ_BUFFER_SIZE, MSG_PEEK)) > 0) {
-    for (i = 0; i < n; i++) {
-      if (buf[bufpos + i] == '\n') {
-        n = i + 1;
-        if ((recv(sock, buf + bufpos, n, 0)) == n) {
-          if (bufpos + i > 0 && buf[bufpos + i - 1] == '\r')
-            buf[bufpos + i - 1] = 0;
-          else
-            buf[bufpos + i] = 0;
-          return buf;
-        }
-      }
-    }
-    if ((n = recv(sock, buf + bufpos, n, 0)) < 0)
-      break;
-    bufpos += n;
-    buf = (char*)realloc(buf, bufpos + READ_BUFFER_SIZE);
-  }
-  if (bufpos == bufsize)
-    buf = (char*)realloc(buf, bufpos + 1);
-  buf[bufpos] = 0;
-  return buf;
-}
-
 int send_http_request (SOCKET sock, const char* request, char** response)
 {
   char* responseline;
@@ -186,7 +153,7 @@ int send_http_request (SOCKET sock, const char* request, char** response)
       return -1;
   }
   //get result code
-  if ((responseline = receive_line(sock)) == NULL)
+  if ((responseline = socket_receiveline(sock)) == NULL)
     return -1;
 #ifdef _WIN32
   if (strnicmp(responseline, "HTTP/", 5) != 0)
@@ -211,7 +178,7 @@ int send_http_request (SOCKET sock, const char* request, char** response)
       (*response)[responselen++] = '\n';
     }
     free(responseline);
-    responseline = receive_line(sock);
+    responseline = socket_receiveline(sock);
   }
   if (responseline)
     free(responseline);
@@ -283,7 +250,7 @@ struct __attribute__((packed, aligned(1))) socks5_connect_request {
 
 void write_log_info (proxysocketconfig proxy, int level, const char* fmt, ...)
 {
-  if (proxy->log_function) {
+  if (proxy && proxy->log_function) {
     va_list ap;
     char* msg;
     int msglen;
@@ -788,3 +755,54 @@ DLL_EXPORT_PROXYSOCKET void proxysocket_disconnect (proxysocketconfig proxy, SOC
   else
     write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connection closed");
 }
+
+#define READ_BUFFER_SIZE 128
+
+DLL_EXPORT_PROXYSOCKET char* socket_receiveline (SOCKET sock)
+{
+  char* buf;
+  int bufpos = 0;
+  int bufsize = READ_BUFFER_SIZE;
+  int n;
+  int i;
+  //abort if invalid socket
+  if (sock == INVALID_SOCKET)
+    return NULL;
+  //receive data in dynamically (re)allocated buffer
+  if ((buf = (char*)malloc(READ_BUFFER_SIZE)) == NULL)
+    return NULL;
+  while ((n = recv(sock, buf + bufpos, READ_BUFFER_SIZE, MSG_PEEK)) > 0) {
+    //detect line break in peeked data
+    for (i = 0; i < n; i++) {
+      if (buf[bufpos + i] == '\n') {
+        n = i + 1;
+        //remove trailing line break
+        if ((recv(sock, buf + bufpos, n, 0)) == n) {
+          if (bufpos + i > 0 && buf[bufpos + i - 1] == '\r')
+            buf[bufpos + i - 1] = 0;
+          else
+            buf[bufpos + i] = 0;
+          return buf;
+        }
+      }
+    }
+    //read data up to and including line break
+    if ((n = recv(sock, buf + bufpos, n, 0)) <= 0)
+      break;
+    bufpos += n;
+    if ((buf = (char*)realloc(buf, bufpos + READ_BUFFER_SIZE)) == NULL)
+      return NULL;
+  }
+  //detect disconnected connection
+  if (bufpos == 0 && n < 0) {
+    free(buf);
+    return NULL;
+  }
+  //add trailing zero
+  if (bufpos >= bufsize)
+    if ((buf = (char*)realloc(buf, bufpos + 1)) == NULL)
+      return NULL;
+  buf[bufpos] = 0;
+  return buf;
+}
+

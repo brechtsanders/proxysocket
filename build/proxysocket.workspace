@@ -5,7 +5,7 @@
 		<Project filename="proxysocket_shared.cbp" />
 		<Project filename="proxysocket.cbp" />
 		<Project filename="example_ipify.cbp">
-			<Depends filename="proxysocket_shared.cbp" />
+			<Depends filename="proxysocket_static.cbp" />
 		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>

@@ -175,8 +175,16 @@ DLL_EXPORT_PROXYSOCKET SOCKET proxysocket_connect (proxysocketconfig proxy, cons
  * \param  proxy       proxy information as returned by proxysocketconfig_create()
  * \param  sock        network socket as returned by proxysocket_connect()
  * \sa     proxysocketconfig_create()
+ * \sa     proxysocket_connect()
  */
 DLL_EXPORT_PROXYSOCKET void proxysocket_disconnect (proxysocketconfig proxy, SOCKET sock);
+
+/*! \brief read a line from a socket
+ * \param  sock        network socket as returned by proxysocket_connect() or socket()
+ * \return contents of line without trailing new line (caller must free) or NULL on failure
+ * \sa     proxysocket_connect()
+ */
+DLL_EXPORT_PROXYSOCKET char* socket_receiveline (SOCKET sock);
 
 #ifdef __cplusplus
 }
