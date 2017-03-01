@@ -5,11 +5,13 @@ Portable C library for proxy client support, designed to be used as a drop-in re
 Description
 -----------
 Cross-platform C library to establish TCP connections using a proxy.
+
 Supports different connection methods:
  - no proxy (optionally allowing to bind to a local address and/or port)
  - HTTP proxy: only CONNECT method, only without authentication or basic authentication
  - SOCKS4: without IDENT functionality
  - SOCKS5 (RFC 1928): only without authentication or username/password
+
 Features:
  - Currently only support IPv4 TCP connections.
  - Returns a standard operating system SOCKET that can be manipulated by standard operating system functions like send() and recv().
