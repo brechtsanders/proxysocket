@@ -20,7 +20,7 @@ else
 BINEXT =
 SOEXT = .so
 endif
-INCS = -Iinclude -Ilib
+INCS = -Iinclude -Isrc
 CFLAGS = $(INCS) -Os
 CPPFLAGS = $(INCS) -Os
 STATIC_CFLAGS = -DBUILD_PROXYSOCKET_STATIC
@@ -59,8 +59,8 @@ else
 OS_LINK_FLAGS = -shared -Wl,-soname,$@ $(STRIPFLAG)
 endif
 
-TOOLS_BIN = 
-EXAMPLES_BIN = proxysocket_test$(BINEXT) example_ipify$(BINEXT)
+TOOLS_BIN = example_ipify$(BINEXT)
+EXAMPLES_BIN = proxysocket_test$(BINEXT)
 
 COMMON_PACKAGE_FILES = README.md LICENSE.txt Changelog.txt
 SOURCE_PACKAGE_FILES = $(COMMON_PACKAGE_FILES) Makefile doc/Doxyfile src/*.h src/*.c examples/*.c build/*.cbp
@@ -113,7 +113,7 @@ ifeq ($(OS),Windows_NT)
 else
 	$(CP) *$(SOEXT) $(PREFIX)/lib/
 endif
-#	$(CP) $(TOOLS_BIN) $(PREFIX)/bin/
+	$(CP) $(TOOLS_BIN) $(PREFIX)/bin/
 ifdef DOXYGEN
 	$(CPDIR) doc/man $(PREFIX)/
 endif
