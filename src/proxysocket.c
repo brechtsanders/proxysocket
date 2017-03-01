@@ -275,11 +275,11 @@ void proxyinfolist_free (struct proxyinfo_struct* proxyinfo)
   struct proxyinfo_struct* current = proxyinfo;
   while (current) {
     next = current->next;
-    if (current->proxyhost);
+    if (current->proxyhost)
       free(current->proxyhost);
-    if (current->proxyuser);
+    if (current->proxyuser)
       free(current->proxyuser);
-    if (current->proxypass);
+    if (current->proxypass)
       free(current->proxypass);
     free(current);
     current = next;
@@ -415,7 +415,7 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
   //resolve destination host
   if ((hostaddr = get_ipv4_address(dsthost)) == INADDR_NONE)
     ERROR_DISCONNECT_AND_ABORT("Error looking up host: %s", dsthost)
-  write_log_info(proxy, PROXYSOCKET_LOG_DEBUG, "Resolved host %s to IP: %s",dsthost, inet_ntoa(*(struct in_addr*)&hostaddr));
+  write_log_info(proxy, PROXYSOCKET_LOG_DEBUG, "Resolved host %s to IP: %s", dsthost, inet_ntoa(*(struct in_addr*)&hostaddr));
   //resolve proxy host address
   proxyaddr = INADDR_NONE;
   if (proxyinfo->proxyhost && *proxyinfo->proxyhost) {

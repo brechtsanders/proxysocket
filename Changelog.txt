@@ -1,4 +1,10 @@
-0.0.2
+0.1.2
+
+2017-03-01  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fixed memory leak
+
+0.1.1
 
 2016-12-17  Brecht Sanders  https://github.com/brechtsanders/
 
@@ -12,7 +18,7 @@
 
   * improved log messages
 
-0.0.1
+0.1.0
 
 2016-12-05  Brecht Sanders  https://github.com/brechtsanders/
 
