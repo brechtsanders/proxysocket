@@ -21,7 +21,9 @@ Features:
 Goals
 -----
 Portability across platfoms (including Windows, Linux and macOS).
-Returned SOCKET a standard operating system connection handle as returned by socket(), allowing for an easy replacement of socket() and connect().
+
+The returned SOCKET is a standard operating system connection handle as returned by socket(), allowing for an easy replacement of socket() and connect().
+
 Support for IPv4 TCP connections only. Also, besides the supported proxy protocols, no specific protocol support (like HTTP or SSL) is included.
 
 Dependancies
