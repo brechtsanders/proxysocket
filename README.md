@@ -10,7 +10,7 @@ Supports different connection methods:
  - no proxy (optionally allowing to bind to a local address and/or port)
  - HTTP proxy: only CONNECT method, only without authentication or basic authentication
  - SOCKS4: without IDENT functionality
- - SOCKS5 (RFC 1928): only without authentication or username/password
+ - SOCKS5 (RFC 1928): only username/password authentication or no authentication
 
 Features:
  - Currently only support IPv4 TCP connections.
