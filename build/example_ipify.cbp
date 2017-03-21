@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="example_ipify" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../bin/Debug/example_ipify" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="-t SOCKS5 -s localhost -p 1080 -l 3APA3A -w 3apa3a -d" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="../bin/Debug/libproxysocket.a" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="../bin/Release/example_ipify" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="../bin/Release/libproxysocket.a" />
+				</Linker>
+			</Target>
+			<Target title="Debug32">
+				<Option output="../bin/Debug32/example_ipify" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Debug32/" />
+				<Option type="1" />
+				<Option compiler="MINGW32" />
+				<Option parameters="-t SOCKS4 -s localhost -p 9050 -v" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="../bin/Debug32/libproxysocket.a" />
+				</Linker>
+			</Target>
+			<Target title="Release32">
+				<Option output="../bin/Release32/example_ipify" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Release32/" />
+				<Option type="1" />
+				<Option compiler="MINGW32" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="../bin/Release32/libproxysocket.a" />
+				</Linker>
+			</Target>
+			<Target title="Debug64">
+				<Option output="../bin/Debug64/example_ipify" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Debug64/" />
+				<Option type="1" />
+				<Option compiler="MINGW64" />
+				<Option parameters="-t SOCKS5 -s 127.0.0.1 -p 1080 -v" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="../bin/Debug64/libproxysocket.a" />
+				</Linker>
+			</Target>
+			<Target title="Release64">
+				<Option output="../bin/Release64/example_ipify" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Release64/" />
+				<Option type="1" />
+				<Option compiler="MINGW64" />
+				<Option parameters="-t WEB -s 10.0.0.5 -p 3128 -l 3APA3A -w 3apa3a -d" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="../bin/Release64/libproxysocket.a" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-mno-ms-bitfields" />
+			<Add option="-DSTATIC" />
+			<Add directory="../src" />
+		</Compiler>
+		<Linker>
+			<Add library="ws2_32" />
+		</Linker>
+		<Unit filename="../examples/example_ipify.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

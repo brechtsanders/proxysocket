@@ -50,7 +50,7 @@ extern "C" {
 /*! \brief minor version number */
 #define PROXYSOCKET_VERSION_MINOR 1
 /*! \brief micro version number */
-#define PROXYSOCKET_VERSION_MICRO 2
+#define PROXYSOCKET_VERSION_MICRO 3
 /*! @} */
 
 /*! \brief proxy types
@@ -154,6 +154,13 @@ typedef void (*proxysocketconfig_log_fn)(int level, const char* message, void* u
  * \sa     proxysocketconfig_log_fn
  */
 DLL_EXPORT_PROXYSOCKET void proxysocketconfig_set_logging (proxysocketconfig proxy, proxysocketconfig_log_fn log_fn, void* userdata);
+
+/*! \brief specify where name resolution is done
+ * \param  proxy       proxy information as returned by proxysocketconfig_create()
+ * \param  proxy_dns   perform DNS lookup on the proxy server if non-zero or on client if zero (default)
+ * \sa     proxysocketconfig_create()
+ */
+DLL_EXPORT_PROXYSOCKET void proxysocketconfig_use_proxy_dns (proxysocketconfig proxy, int proxy_dns);
 
 /*! \brief clean up proxy information
  * \param  proxy       proxy information as returned by proxysocketconfig_create()
