@@ -724,7 +724,7 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
     int result;
     char* response;
     char* proxycmd;
-    char* host = (proxy->proxy_dns == USE_CLIENT_DNS ? inet_ntoa(*(struct in_addr*)&hostaddr) : (dsthost ? dsthost : ""));
+    const char* host = (proxy->proxy_dns == USE_CLIENT_DNS ? inet_ntoa(*(struct in_addr*)&hostaddr) : (dsthost ? dsthost : ""));
     size_t proxycmdlen = 22 + 15 + 1 + 5 + 1 + (proxyauth ? 29 + strlen(proxyauth) : 0);
     write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Sending HTTP proxy CONNECT %s:%u", host, dstport);
     if ((proxycmd = (char*)malloc(proxycmdlen)) == NULL)

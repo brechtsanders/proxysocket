@@ -59,7 +59,7 @@ else
 OS_LINK_FLAGS = -shared -Wl,-soname,$@ $(STRIPFLAG)
 endif
 
-TOOLS_BIN = example_ipify$(BINEXT)
+TOOLS_BIN = ipify$(BINEXT)
 EXAMPLES_BIN = proxysocket_test$(BINEXT)
 
 COMMON_PACKAGE_FILES = README.md LICENSE.txt Changelog.txt

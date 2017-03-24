@@ -1,8 +1,9 @@
 0.1.3
 
-2017-03-21  Brecht Sanders  https://github.com/brechtsanders/
+2017-03-24  Brecht Sanders  https://github.com/brechtsanders/
 
-  * added support for looking
+  * added support for proxy server host lookups (previously only local DNS)
+  * example program: ipify (connects to ipify.org to determine external IP)
 
 0.1.2
 

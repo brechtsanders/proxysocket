@@ -4,7 +4,7 @@
 		<Project filename="proxysocket_static.cbp" />
 		<Project filename="proxysocket_shared.cbp" />
 		<Project filename="proxysocket.cbp" />
-		<Project filename="example_ipify.cbp">
+		<Project filename="ipify.cbp">
 			<Depends filename="proxysocket_static.cbp" />
 		</Project>
 	</Workspace>
