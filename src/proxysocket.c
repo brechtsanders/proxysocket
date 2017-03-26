@@ -6,6 +6,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
 #ifndef SOCKET_ERROR
 #define SOCKET_ERROR -1
 #endif
