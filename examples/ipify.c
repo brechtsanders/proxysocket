@@ -8,6 +8,7 @@
 #endif
 
 #define DST_HOST "api.ipify.org"
+#define DST_PATH "/"
 #define DST_PORT 80
 
 void logger (int level, const char* message, void* userdata)
@@ -140,6 +141,7 @@ int main (int argc, char* argv[])
     }
   }
 
+  //make the connection via the specified proxy
   SOCKET sock;
   char* errmsg;
   //prepare for connection
@@ -158,7 +160,7 @@ int main (int argc, char* argv[])
     free(errmsg);
   } else {
     //send data
-    const char* http_request = "GET / HTTP/1.0\r\nHost: " DST_HOST "\r\n\r\n";
+    const char* http_request = "GET " DST_PATH " HTTP/1.0\r\nHost: " DST_HOST "\r\n\r\n";
     send(sock, http_request, strlen(http_request), 0);
     //receive data and skip header
     char* line;
