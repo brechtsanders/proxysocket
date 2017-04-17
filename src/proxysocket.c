@@ -785,7 +785,17 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
 
 DLL_EXPORT_PROXYSOCKET SOCKET proxysocket_connect (proxysocketconfig proxy, const char* dsthost, uint16_t dstport, char** errmsg)
 {
-  return proxyinfo_connect(proxy, proxy->proxyinfolist, dsthost, dstport, errmsg);
+  if (proxy) {
+    return proxyinfo_connect(proxy, proxy->proxyinfolist, dsthost, dstport, errmsg);
+  } else {
+    //use direct connection if proxy is NULL
+    SOCKET result;
+    if ((proxy = proxysocketconfig_create_direct()) == NULL)
+      return SOCKET_ERROR;
+    result = proxyinfo_connect(proxy, proxy->proxyinfolist, dsthost, dstport, errmsg);
+    proxysocketconfig_free(proxy);
+    return result;
+  }
 }
 
 DLL_EXPORT_PROXYSOCKET void proxysocket_disconnect (proxysocketconfig proxy, SOCKET sock)
