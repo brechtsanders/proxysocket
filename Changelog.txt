@@ -2,7 +2,9 @@
 
 2017-04-17  Brecht Sanders  https://github.com/brechtsanders/
 
-  * proxysocket_connect with proxy set to NULL makes direct connection
+  * proxysocket_connect() with proxy set to NULL makes direct connection
+  * added proxysocketconfig_get_type_name() to get name of proxy type
+  * added proxysocketconfig_get_name_type() to get proxy type by name
 
 0.1.3
 

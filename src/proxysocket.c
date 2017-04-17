@@ -21,6 +21,10 @@
 #ifdef _MSC_VER
 #define va_copy(dst,src) ((dst) = (src))
 #endif
+#if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
+#define strcasecmp stricmp
+#define strncasecmp strnicmp
+#endif
 
 #ifndef _WIN32
 #define HAVE_VASPRINTF 1
@@ -162,11 +166,7 @@ int send_http_request (SOCKET sock, const char* request, char** response)
   //get result code
   if ((responseline = socket_receiveline(sock)) == NULL)
     return -1;
-#ifdef _WIN32
-  if (strnicmp(responseline, "HTTP/", 5) != 0)
-#else
   if (strncasecmp(responseline, "HTTP/", 5) != 0)
-#endif
     return -1;
   p = responseline + 5;
   while (*p && (isdigit(*p) || *p == '.'))
@@ -306,6 +306,35 @@ DLL_EXPORT_PROXYSOCKET void proxysocket_get_version (int* pmajor, int* pminor, i
 DLL_EXPORT_PROXYSOCKET const char* proxysocket_get_version_string ()
 {
   return PROXYSOCKET_VERSION_STRING;
+}
+
+DLL_EXPORT_PROXYSOCKET const char* proxysocketconfig_get_type_name (int proxytype)
+{
+  switch (proxytype) {
+    case PROXYSOCKET_TYPE_NONE:
+      return "NONE";
+    case PROXYSOCKET_TYPE_SOCKS4:
+      return "SOCKS4A";
+    case PROXYSOCKET_TYPE_SOCKS5:
+      return "SOCKS5";
+    case PROXYSOCKET_TYPE_WEB_CONNECT:
+      return "WEB";
+    default:
+      return "INVALID";
+  }
+}
+
+DLL_EXPORT_PROXYSOCKET int proxysocketconfig_get_name_type (const char* proxytypename)
+{
+  if (strcasecmp(proxytypename, "NONE") == 0 || strcasecmp(proxytypename, "DIRECT") == 0)
+    return PROXYSOCKET_TYPE_NONE;
+  if (strcasecmp(proxytypename, "SOCKS4A") == 0 || strcasecmp(proxytypename, "SOCKS4") == 0)
+    return PROXYSOCKET_TYPE_SOCKS4;
+  if (strcasecmp(proxytypename, "SOCKS5") == 0)
+    return PROXYSOCKET_TYPE_SOCKS5;
+  if (strcasecmp(proxytypename, "WEB") == 0 || strcasecmp(proxytypename, "HTTP") == 0)
+    return PROXYSOCKET_TYPE_WEB_CONNECT;
+  return PROXYSOCKET_TYPE_INVALID;
 }
 
 DLL_EXPORT_PROXYSOCKET int proxysocket_initialize ()
@@ -865,4 +894,3 @@ DLL_EXPORT_PROXYSOCKET char* socket_receiveline (SOCKET sock)
   buf[bufpos] = 0;
   return buf;
 }
-

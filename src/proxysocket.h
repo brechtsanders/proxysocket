@@ -66,6 +66,8 @@ extern "C" {
 #define PROXYSOCKET_TYPE_SOCKS5         0x05
 /*! \brief HTTP proxy */
 #define PROXYSOCKET_TYPE_WEB_CONNECT    0x20
+/*! \brief invalid proxy type */
+#define PROXYSOCKET_TYPE_INVALID        -1
 /*! @} */
 
 /*! \brief logging levels
@@ -94,6 +96,22 @@ DLL_EXPORT_PROXYSOCKET void proxysocket_get_version (int* pmajor, int* pminor, i
  * \sa     proxysocket_get_version()
  */
 DLL_EXPORT_PROXYSOCKET const char* proxysocket_get_version_string ();
+
+/*! \brief get the textual name of a proxy type
+ * \param  proxytype       proxy type (one of the PROXYSOCKET_TYPE_ constants)
+ * \return name of the proxy type (NONE/SOCKS4A/SOCKS5/WEB/INVALID)
+ * \sa     proxysocketconfig_create()
+ * \sa     proxysocketconfig_get_name_type()
+ */
+DLL_EXPORT_PROXYSOCKET const char* proxysocketconfig_get_type_name (int proxytype);
+
+/*! \brief get the textual name of a proxy type
+ * \param  proxytypename   name of the proxy type (NONE/DIRECT/SOCKS4/SOCKS4A/SOCKS5/WEB/HTTP)
+ * \return proxy type (one of the PROXYSOCKET_TYPE_ constants) or PROXYSOCKET_TYPE_INVALID on failure
+ * \sa     proxysocketconfig_create()
+ * \sa     proxysocketconfig_get_type_name()
+ */
+DLL_EXPORT_PROXYSOCKET int proxysocketconfig_get_name_type (const char* proxytypename);
 
 /*! \brief initialize library, call once at the beginning of the main thread of the application
  * \return zero on success

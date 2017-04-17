@@ -45,6 +45,14 @@ void show_help ()
   );
 }
 
+#define GET_PARAM()                     \
+  if (argv[i][2])                       \
+    param = argv[i] + 2;                \
+  else if (i + 1 < argc && argv[i + 1]) \
+    param = argv[++i];                  \
+  else                                  \
+    param = NULL;
+
 int main (int argc, char* argv[])
 {
   //get command line parameters
@@ -66,61 +74,30 @@ int main (int argc, char* argv[])
           show_help();
           return 0;
         case 't' :
-          if (argv[i][2])
-            param = argv[i] + 2;
-          else if (i + 1 < argc && argv[i + 1])
-            param = argv[++i];
-          else
-            param = NULL;
-          if (strcasecmp(param, "SOCKS4") == 0 || strcasecmp(param, "SOCKS4A") == 0)
-            proxytype = PROXYSOCKET_TYPE_SOCKS4;
-          else if (strcasecmp(param, "SOCKS5") == 0)
-            proxytype = PROXYSOCKET_TYPE_SOCKS5;
-          else if (strcasecmp(param, "WEB") == 0 || strcasecmp(param, "HTTP") == 0)
-            proxytype = PROXYSOCKET_TYPE_WEB_CONNECT;
-          else {
+          GET_PARAM()
+          if ((proxytype = proxysocketconfig_get_name_type(param)) == PROXYSOCKET_TYPE_INVALID) {
             fprintf(stderr, "Invalid proxy type: %s\n", param);
             show_help();
             return 1;
           }
           break;
         case 's' :
-          if (argv[i][2])
-            param = argv[i] + 2;
-          else if (i + 1 < argc && argv[i + 1])
-            param = argv[++i];
-          else
-            param = NULL;
+          GET_PARAM()
           if (param)
             proxyhost = param;
           break;
         case 'p' :
-          if (argv[i][2])
-            param = argv[i] + 2;
-          else if (i + 1 < argc && argv[i + 1])
-            param = argv[++i];
-          else
-            param = NULL;
+          GET_PARAM()
           if (param)
             proxyport = strtol(param, (char**)NULL, 10);
           break;
         case 'l' :
-          if (argv[i][2])
-            param = argv[i] + 2;
-          else if (i + 1 < argc && argv[i + 1])
-            param = argv[++i];
-          else
-            param = NULL;
+          GET_PARAM()
           if (param)
             proxyuser = param;
           break;
         case 'w' :
-          if (argv[i][2])
-            param = argv[i] + 2;
-          else if (i + 1 < argc && argv[i + 1])
-            param = argv[++i];
-          else
-            param = NULL;
+          GET_PARAM()
           if (param)
             proxypass = param;
           break;
