@@ -1,3 +1,9 @@
+0.1.5
+
+2017-10-20  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fixed comment for proxysocketconfig_log_fn in proxysocket.h
+
 0.1.4
 
 2017-04-17  Brecht Sanders  https://github.com/brechtsanders/
