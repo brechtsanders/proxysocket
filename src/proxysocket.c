@@ -432,13 +432,13 @@ char* proxysocketconfig_get_description_entry (proxysocketconfig proxy, struct p
       desclen = appendsprintf(&desc, desclen, "direct connection");
       break;
     case PROXYSOCKET_TYPE_SOCKS4 :
-      desclen = appendsprintf(&desc, desclen, "SOCKS4 proxy: %s:%u (%s%s)", proxyinfo->proxyhost, (unsigned int)proxyinfo->proxyport, (!proxyinfo->proxyuser ? "no authentication" : "user: "), (!proxyinfo->proxyuser ? "" : proxyinfo->proxyuser));
+      desclen = appendsprintf(&desc, desclen, "SOCKS4 proxy: %s:%u (%s%s)", proxyinfo->proxyhost, (unsigned int)proxyinfo->proxyport, (!proxyinfo->proxyuser || !*proxyinfo->proxyuser ? "no authentication" : "user: "), (!proxyinfo->proxyuser || !*proxyinfo->proxyuser ? "" : proxyinfo->proxyuser));
       break;
     case PROXYSOCKET_TYPE_SOCKS5 :
-      desclen = appendsprintf(&desc, desclen, "SOCKS5 proxy: %s:%u (%s%s)", proxyinfo->proxyhost, (unsigned int)proxyinfo->proxyport, (!proxyinfo->proxyuser ? "no authentication" : "user: "), (!proxyinfo->proxyuser ? "" : proxyinfo->proxyuser));
+      desclen = appendsprintf(&desc, desclen, "SOCKS5 proxy: %s:%u (%s%s)", proxyinfo->proxyhost, (unsigned int)proxyinfo->proxyport, (!proxyinfo->proxyuser || !*proxyinfo->proxyuser ? "no authentication" : "user: "), (!proxyinfo->proxyuser || !*proxyinfo->proxyuser ? "" : proxyinfo->proxyuser));
       break;
     case PROXYSOCKET_TYPE_WEB_CONNECT :
-      desclen = appendsprintf(&desc, desclen, "web proxy: %s:%u (%s%s)", proxyinfo->proxyhost, (unsigned int)proxyinfo->proxyport, (!proxyinfo->proxyuser ? "no authentication" : "user: "), (!proxyinfo->proxyuser ? "" : proxyinfo->proxyuser));
+      desclen = appendsprintf(&desc, desclen, "web proxy: %s:%u (%s%s)", proxyinfo->proxyhost, (unsigned int)proxyinfo->proxyport, (!proxyinfo->proxyuser || !*proxyinfo->proxyuser ? "no authentication" : "user: "), (!proxyinfo->proxyuser || !*proxyinfo->proxyuser ? "" : proxyinfo->proxyuser));
       break;
     //case PROXYSOCKET_TYPE_INVALID :
     default :
