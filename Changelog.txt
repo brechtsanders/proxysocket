@@ -3,6 +3,7 @@
 2017-10-20  Brecht Sanders  https://github.com/brechtsanders/
 
   * fixed comment for proxysocketconfig_log_fn in proxysocket.h
+  * added proxysocketconfig_get_description() to get proxy description
 
 0.1.4
 

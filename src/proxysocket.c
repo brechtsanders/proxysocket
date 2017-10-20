@@ -56,33 +56,55 @@ struct proxyinfo_struct {
 };
 
 #ifndef HAVE_VASPRINTF
-int vasprintf(char** strp, const char* fmt, va_list ap)
+int vasprintf (char** strp, const char* fmt, va_list ap)
 {
   va_list aq;
-  int strlen;
+  int len;
   //allocate buffer for logging data
   va_copy(aq, ap);
-  strlen = vsnprintf(NULL, 0, fmt, aq);
-  if ((*strp = (char*)malloc(strlen + 1)) == NULL) {
+  len = vsnprintf(NULL, 0, fmt, aq);
+  if ((*strp = (char*)malloc(len + 1)) == NULL) {
     return -1;
   }
   //format logging data
-  vsnprintf(*strp, strlen + 1, fmt, ap);
-  return strlen;
+  vsnprintf(*strp, len + 1, fmt, ap);
+  return len;
 }
 #endif
 
 #ifndef HAVE_ASPRINTF
-int asprintf(char** strp, const char* fmt, ...)
+int asprintf (char** strp, const char* fmt, ...)
 {
-  int strlen;
+  int len;
   va_list ap;
   va_start(ap, fmt);
-  strlen = vasprintf(strp, fmt, ap);
+  len = vasprintf(strp, fmt, ap);
   va_end(ap);
-  return strlen;
+  return len;
 }
 #endif
+
+int appendsprintf (char** dststrp, int dststrlen, const char* fmt, ...)
+{
+  int len;
+  char* str;
+  va_list ap;
+  va_start(ap, fmt);
+  len = vasprintf(&str, fmt, ap);
+  va_end(ap);
+  //append result
+  if (len >= 0) {
+    if (dststrlen < 0)
+      dststrlen = (*dststrp ? strlen(*dststrp) : 0);
+    len = dststrlen + len;
+    if ((*dststrp = realloc(*dststrp, len + 1)) == NULL)
+      len = -1;
+    else
+      strcpy(*dststrp + dststrlen, str);
+    free(str);
+  }
+  return len;
+}
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -397,6 +419,46 @@ DLL_EXPORT_PROXYSOCKET int proxysocketconfig_add_proxy (proxysocketconfig proxy,
   proxy->proxyinfolist->proxypass = (proxypass ? strdup(proxypass) : NULL);
   proxy->proxyinfolist->next = next;
   return 0;
+}
+
+char* proxysocketconfig_get_description_entry (proxysocketconfig proxy, struct proxyinfo_struct* proxyinfo, char* desc, int desclen)
+{
+  if (!proxy || !proxyinfo)
+    return desc;
+  if (proxyinfo != proxy->proxyinfolist)
+    desclen = appendsprintf(&desc, desclen, " -> ");
+  switch (proxyinfo->proxytype) {
+    case PROXYSOCKET_TYPE_NONE :
+      desclen = appendsprintf(&desc, desclen, "direct connection");
+      break;
+    case PROXYSOCKET_TYPE_SOCKS4 :
+      desclen = appendsprintf(&desc, desclen, "SOCKS4 proxy: %s:%u (%s%s)", proxyinfo->proxyhost, (unsigned int)proxyinfo->proxyport, (!proxyinfo->proxyuser ? "no authentication" : "user: "), (!proxyinfo->proxyuser ? "" : proxyinfo->proxyuser));
+      break;
+    case PROXYSOCKET_TYPE_SOCKS5 :
+      desclen = appendsprintf(&desc, desclen, "SOCKS5 proxy: %s:%u (%s%s)", proxyinfo->proxyhost, (unsigned int)proxyinfo->proxyport, (!proxyinfo->proxyuser ? "no authentication" : "user: "), (!proxyinfo->proxyuser ? "" : proxyinfo->proxyuser));
+      break;
+    case PROXYSOCKET_TYPE_WEB_CONNECT :
+      desclen = appendsprintf(&desc, desclen, "web proxy: %s:%u (%s%s)", proxyinfo->proxyhost, (unsigned int)proxyinfo->proxyport, (!proxyinfo->proxyuser ? "no authentication" : "user: "), (!proxyinfo->proxyuser ? "" : proxyinfo->proxyuser));
+      break;
+    //case PROXYSOCKET_TYPE_INVALID :
+    default :
+      desclen = appendsprintf(&desc, desclen, "INVALID");
+      break;
+  }
+  if (!proxyinfo->next || proxyinfo->next->proxytype == PROXYSOCKET_TYPE_NONE)
+    return desc;
+  return proxysocketconfig_get_description_entry(proxy, proxyinfo->next, desc, desclen);
+}
+
+DLL_EXPORT_PROXYSOCKET char* proxysocketconfig_get_description (proxysocketconfig proxy)
+{
+  char* result = NULL;
+  int resultlen = 0;
+  if (!proxy || !proxy->proxyinfolist)
+    return NULL;
+  if (proxy->proxyinfolist && proxy->proxyinfolist->proxytype != PROXYSOCKET_TYPE_NONE)
+  resultlen = appendsprintf(&result, 0, "(use %s DNS) ", (proxy->proxy_dns == USE_PROXY_DNS ? "server" : "client"));
+  return proxysocketconfig_get_description_entry(proxy, proxy->proxyinfolist, result, resultlen);
 }
 
 DLL_EXPORT_PROXYSOCKET void proxysocketconfig_set_logging (proxysocketconfig proxy, proxysocketconfig_log_fn log_fn, void* userdata)

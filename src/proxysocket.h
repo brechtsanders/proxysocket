@@ -164,6 +164,12 @@ DLL_EXPORT_PROXYSOCKET int proxysocketconfig_add_proxy (proxysocketconfig proxy,
  */
 typedef void (*proxysocketconfig_log_fn)(int level, const char* message, void* userdata);
 
+/*! \brief get description of configured proxy
+ * \param  proxy       proxy information as returned by proxysocketconfig_create()
+ * \return string with description of proxy settings (caller must free) or NULL on failure
+ */
+DLL_EXPORT_PROXYSOCKET char* proxysocketconfig_get_description (proxysocketconfig proxy);
+
 /*! \brief configure logging function
  * \param  proxy       proxy information as returned by proxysocketconfig_create()
  * \param  log_fn      logging function to use or NULL to disable logging
