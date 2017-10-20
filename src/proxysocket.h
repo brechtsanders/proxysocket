@@ -121,12 +121,6 @@ DLL_EXPORT_PROXYSOCKET int proxysocket_initialize ();
 /*! \brief proxysocketconfig object type */
 typedef struct proxysocketconfig_struct* proxysocketconfig;
 
-/*! \brief type of pointer to function for logging
- * \param  level       logging level (one of the PROXYSOCKET_LOG_ constants)
- * \param  message     text to be logged
- * \param  userdata    custom data as passed to proxysocketconfig_set_logging
- * \sa     proxysocketconfig_set_logging()
- */
 /*! \brief create proxy information data structure set up for direct connection
  * \return proxy information data structure on success or NULL on failure
  * \sa     proxysocketconfig_create()
@@ -162,6 +156,12 @@ DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create (int proxytype
  */
 DLL_EXPORT_PROXYSOCKET int proxysocketconfig_add_proxy (proxysocketconfig proxy, int proxytype, const char* proxyhost, uint16_t proxyport, const char* proxyuser, const char* proxypass);
 
+/*! \brief type of pointer to function for logging
+ * \param  level       logging level (one of the PROXYSOCKET_LOG_ constants)
+ * \param  message     text to be logged
+ * \param  userdata    custom data as passed to proxysocketconfig_set_logging
+ * \sa     proxysocketconfig_set_logging()
+ */
 typedef void (*proxysocketconfig_log_fn)(int level, const char* message, void* userdata);
 
 /*! \brief configure logging function
