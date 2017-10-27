@@ -50,7 +50,7 @@ extern "C" {
 /*! \brief minor version number */
 #define PROXYSOCKET_VERSION_MINOR 1
 /*! \brief micro version number */
-#define PROXYSOCKET_VERSION_MICRO 5
+#define PROXYSOCKET_VERSION_MICRO 6
 /*! @} */
 
 /*! \brief proxy types
