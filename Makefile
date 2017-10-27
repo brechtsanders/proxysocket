@@ -4,6 +4,14 @@ ifneq ($(findstring Windows,$(OS))$(findstring MINGW32,$(OS))$(findstring MSYS,$
 OS = Windows_NT
 endif
 endif
+PLATFORMNAME = $(OS)
+ifeq ($(PLATFORMNAME),Windows_NT)
+ifneq ($(findstring x86_64,$(shell gcc --version)),)
+PLATFORMNAME = win64
+else ifneq ($(findstring i686,$(shell gcc --version)),)
+PLATFORMNAME = win32
+endif
+endif
 PREFIX = /usr/local
 CC   = gcc
 CPP  = g++
@@ -129,7 +137,7 @@ package: version
 .PHONY: package
 binarypackage: version
 	$(MAKE) PREFIX=binarypackage_temp install
-	tar cfJ "proxysocket-$(shell cat version)-$(OS).tar.xz" --transform="s?^binarypackage_temp/??" $(COMMON_PACKAGE_FILES) binarypackage_temp/*
+	tar cfJ "proxysocket-$(shell cat version)-$(PLATFORMNAME).tar.xz" --transform="s?^binarypackage_temp/??" $(COMMON_PACKAGE_FILES) binarypackage_temp/*
 	rm -rf binarypackage_temp
 
 .PHONY: clean
