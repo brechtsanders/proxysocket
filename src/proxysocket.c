@@ -482,7 +482,7 @@ DLL_EXPORT_PROXYSOCKET void proxysocketconfig_free (proxysocketconfig proxy)
 
 void log_and_keep_error_message (proxysocketconfig proxy, char** pmsg, const char* fmt, ...)
 {
-  if (fmt && (proxy->log_function || *pmsg)) {
+  if (fmt && (proxy->log_function || pmsg)) {
     char* msg;
     int msglen;
     //generate message

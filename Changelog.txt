@@ -1,3 +1,9 @@
+0.1.6
+
+2017-10-27  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fixed issue: proxysocket_connect(): returned no error message if no logging was set
+
 0.1.5
 
 2017-10-20  Brecht Sanders  https://github.com/brechtsanders/

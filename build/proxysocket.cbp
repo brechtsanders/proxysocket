@@ -53,6 +53,7 @@
 				<Option object_output="../obj/Debug64/" />
 				<Option type="1" />
 				<Option compiler="MINGW64" />
+				<Option parameters="-t SOCKS5 -s 10.0.0.240 -p 8388 -w SECRET -d" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -78,13 +79,13 @@
 		<Linker>
 			<Add library="ws2_32" />
 		</Linker>
+		<Unit filename="../examples/proxysocket_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../src/proxysocket.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../src/proxysocket.h" />
-		<Unit filename="../examples/proxysocket_test.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
