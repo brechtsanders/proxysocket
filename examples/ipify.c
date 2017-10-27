@@ -39,9 +39,11 @@ void show_help ()
     "  -w proxy_pass  \tproxy authentication password\n"
     "  -n             \tuse proxy name resolution (instead of local DNS)\n"
     "  -v             \tverbose mode\n"
-    "  -d             \tdebug mode\n"
+    "  -d             \tdebug mode (overrides -v)\n"
+    "Version: %s\n"
     "Description:\n"
-    "Gets public IP address via " DST_HOST "\n"
+    "Gets public IP address from " DST_HOST " optionally using a proxy server.\n"
+    "This can be used to check if web (HTTP) access is working.", proxysocket_get_version_string()
   );
 }
 
@@ -105,7 +107,8 @@ int main (int argc, char* argv[])
           proxydns = 1;
           break;
         case 'v' :
-          verbose = PROXYSOCKET_LOG_INFO;
+          if (verbose < PROXYSOCKET_LOG_INFO)
+            verbose = PROXYSOCKET_LOG_INFO;
           break;
         case 'd' :
           verbose = PROXYSOCKET_LOG_DEBUG;
