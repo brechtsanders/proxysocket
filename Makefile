@@ -91,7 +91,7 @@ static-lib: $(LIBPREFIX)proxysocket$(LIBEXT)
 shared-lib: $(LIBPREFIX)proxysocket$(SOEXT)
 
 $(LIBPREFIX)proxysocket$(LIBEXT): $(PROXYSOCKET_OBJ:%.o=%.static.o)
-	$(AR) cru $@ $^
+	$(AR) cr $@ $^
 
 $(LIBPREFIX)proxysocket$(SOEXT): $(PROXYSOCKET_OBJ:%.o=%.shared.o)
 	$(CC) -o $@ $(OS_LINK_FLAGS) $^ $(PROXYSOCKET_SHARED_LDFLAGS) $(PROXYSOCKET_LDFLAGS) $(LDFLAGS) $(LIBS)
