@@ -5,6 +5,7 @@
 #include <ctype.h>
 #if defined(_WIN32) && !defined(__MINGW64_VERSION_MAJOR)
 #define strcasecmp stricmp
+#define strncasecmp strnicmp
 #endif
 
 #define DST_HOST "api.ipify.org"
@@ -137,7 +138,6 @@ int main (int argc, char* argv[])
   sock = proxysocket_connect(proxy, DST_HOST, DST_PORT, &errmsg);
   if (sock == INVALID_SOCKET) {
     fprintf(stderr, "%s\n", (errmsg ? errmsg : "Unknown error"));
-    free(errmsg);
   } else {
     //send data
     const char* http_request = "GET " DST_PATH " HTTP/1.0\r\nHost: " DST_HOST "\r\n\r\n";
@@ -145,13 +145,21 @@ int main (int argc, char* argv[])
     //receive data and skip header
     char* line;
     int prevempty = 0;
+    int istext = 0;
+    errmsg = NULL;
     while ((line = socket_receiveline(sock)) != NULL) {
       if (prevempty)
         break;
+      if (strncasecmp(line, "Content-Type: text/plain", 24) == 0)
+        istext = 1;
       prevempty = (line[0] ? 0 : 1);
       free(line);
     }
-    if (line) {
+    if (!line) {
+      errmsg = strdup("No content received");
+    } else if (!istext) {
+      errmsg = strdup("No plain text content returned");
+    } else if (line) {
       printf("Your IP address: %s\n", line);
       free(line);
     }
@@ -159,5 +167,10 @@ int main (int argc, char* argv[])
     proxysocket_disconnect(proxy, sock);
   }
   proxysocketconfig_free(proxy);
+  if (errmsg) {
+    fprintf(stderr, "Error: %s\n", errmsg);
+    free(errmsg);
+    return 1;
+  }
   return 0;
 }
