@@ -1,3 +1,9 @@
+0.1.7
+
+2018-10-26  Brecht Sanders  https://github.com/brechtsanders/
+
+  * improved ipify example application check for and report errors
+
 0.1.6
 
 2017-10-27  Brecht Sanders  https://github.com/brechtsanders/
