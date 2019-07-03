@@ -122,12 +122,13 @@ DLL_EXPORT_PROXYSOCKET int proxysocket_initialize ();
 typedef struct proxysocketconfig_struct* proxysocketconfig;
 
 /*! \brief create proxy information data structure set up for direct connection
+ * \param  timeout     timeout in seconds (0 to disable)
  * \return proxy information data structure on success or NULL on failure
  * \sa     proxysocketconfig_create()
  * \sa     proxysocketconfig_add_proxy()
  * \sa     proxysocketconfig_free()
  */
-DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct ();
+DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct (unsigned int timeout);
 
 /*! \brief create proxy information data structure
  * \param  proxytype   proxy type (one of the PROXYSOCKET_TYPE_ constants)
@@ -135,12 +136,13 @@ DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct ();
  * \param  proxyport   proxy port number (or when proxytype is PROXYSOCKET_TYPE_NONE port to bind to if non-zero)
  * \param  proxyuser   proxy authentication login or NULL for none
  * \param  proxypass   proxy authentication password or NULL for none
+ * \param  timeout     timeout in seconds (0 to disable)
  * \return proxy information data structure on success or NULL on failure
  * \sa     proxysocketconfig_create_direct()
  * \sa     proxysocketconfig_add_proxy()
  * \sa     proxysocketconfig_free()
  */
-DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create (int proxytype, const char* proxyhost, uint16_t proxyport, const char* proxyuser, const char* proxypass);
+DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create (int proxytype, const char* proxyhost, uint16_t proxyport, const char* proxyuser, const char* proxypass, unsigned int timeout);
 
 /*! \brief add a proxy method to proxy information data structure (multiple can be daisy chained)
  * \param  proxy       proxy information as returned by proxysocketconfig_create()
@@ -210,12 +212,24 @@ DLL_EXPORT_PROXYSOCKET SOCKET proxysocket_connect (proxysocketconfig proxy, cons
  */
 DLL_EXPORT_PROXYSOCKET void proxysocket_disconnect (proxysocketconfig proxy, SOCKET sock);
 
+/*! \brief set socket timeout
+ * \param  sock        network socket as returned by proxysocket_connect() or socket()
+ * \param  timeout     timeout in seconds (0 to disable)
+ * \sa     proxysocket_connect()
+ */
+DLL_EXPORT_PROXYSOCKET void socket_set_timeout (SOCKET sock, unsigned int timeout);
+
 /*! \brief read a line from a socket
  * \param  sock        network socket as returned by proxysocket_connect() or socket()
  * \return contents of line without trailing new line (caller must free) or NULL on failure
  * \sa     proxysocket_connect()
  */
 DLL_EXPORT_PROXYSOCKET char* socket_receiveline (SOCKET sock);
+
+/*! \brief get error message of last socket error
+ * \return error message or NULL if no error
+ */
+DLL_EXPORT_PROXYSOCKET char* socket_get_error_message ();
 
 #ifdef __cplusplus
 }

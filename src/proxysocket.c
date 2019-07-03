@@ -43,6 +43,7 @@ struct proxysocketconfig_struct {
   proxysocketconfig_log_fn log_function;
   void* log_data;
   int8_t proxy_dns;
+  unsigned int timeout;
 };
 
 struct proxyinfo_struct {
@@ -373,7 +374,7 @@ DLL_EXPORT_PROXYSOCKET int proxysocket_initialize ()
   return 0;
 }
 
-DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct ()
+DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct (unsigned int timeout)
 {
   struct proxysocketconfig_struct* proxy;
   if ((proxy = (struct proxysocketconfig_struct*)malloc(sizeof(struct proxysocketconfig_struct))) == NULL)
@@ -382,6 +383,7 @@ DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct ()
   proxy->log_function = NULL;
   proxy->log_data = NULL;
   proxy->proxy_dns = USE_CLIENT_DNS;
+  proxy->timeout = timeout;
   if (proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_NONE, NULL, 0, NULL, NULL) != 0) {
     free(proxy);
     return NULL;
@@ -389,10 +391,10 @@ DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct ()
   return proxy;
 }
 
-DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create (int proxytype, const char* proxyhost, uint16_t proxyport, const char* proxyuser, const char* proxypass)
+DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create (int proxytype, const char* proxyhost, uint16_t proxyport, const char* proxyuser, const char* proxypass, unsigned int timeout)
 {
   struct proxysocketconfig_struct* proxy;
-  proxy = proxysocketconfig_create_direct();
+  proxy = proxysocketconfig_create_direct(timeout);
   if (proxysocketconfig_add_proxy(proxy, proxytype, proxyhost, proxyport, proxyuser, proxypass) != 0) {
     free(proxy);
     return NULL;
@@ -553,6 +555,8 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
       if (bind(sock, (struct sockaddr*)&local_sock_addr, sizeof(local_sock_addr)) != 0)
         ERROR_DISCONNECT_AND_ABORT("Error binding socket to: %s:%lu", inet_ntoa(*(struct in_addr*)&local_sock_addr.sin_addr.s_addr), (unsigned long)ntohs(local_sock_addr.sin_port))
     }
+    //set connection timeout
+    socket_set_timeout(sock, proxy->timeout);
     //connect to host
     struct sockaddr_in remote_sock_addr;
     remote_sock_addr.sin_family = AF_INET;
@@ -880,7 +884,7 @@ DLL_EXPORT_PROXYSOCKET SOCKET proxysocket_connect (proxysocketconfig proxy, cons
   } else {
     //use direct connection if proxy is NULL
     SOCKET result;
-    if ((proxy = proxysocketconfig_create_direct()) == NULL)
+    if ((proxy = proxysocketconfig_create_direct(0)) == NULL)
       return SOCKET_ERROR;
     result = proxyinfo_connect(proxy, proxy->proxyinfolist, dsthost, dstport, errmsg);
     proxysocketconfig_free(proxy);
@@ -904,6 +908,19 @@ DLL_EXPORT_PROXYSOCKET void proxysocket_disconnect (proxysocketconfig proxy, SOC
     write_log_info(proxy, PROXYSOCKET_LOG_ERROR, "Failed to close connection (error: %i)", status);
   else
     write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connection closed");
+}
+
+DLL_EXPORT_PROXYSOCKET void socket_set_timeout (SOCKET sock, unsigned int timeout)
+{
+#ifdef __WIN32__
+  DWORD timeoutdata = timeout * 1000;
+#else
+  struct timeval timeoutdata;
+  timeoutdata.tv_sec = timeout;
+  timeoutdata.tv_usec = 0;
+#endif
+  setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeoutdata, sizeof(timeoutdata));
+  setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeoutdata, sizeof(timeoutdata));
 }
 
 #define READ_BUFFER_SIZE 128
@@ -955,3 +972,24 @@ DLL_EXPORT_PROXYSOCKET char* socket_receiveline (SOCKET sock)
   buf[bufpos] = 0;
   return buf;
 }
+
+DLL_EXPORT_PROXYSOCKET char* socket_get_error_message ()
+{
+  char* result = NULL;
+#ifdef _WIN32
+  //get Windows error message
+  LPSTR errmsg;
+  if (FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&errmsg, 0, NULL) > 0) {
+    result = strdup(errmsg);
+    LocalFree(errmsg);
+  }
+#else
+  char* errmsg;
+  //to do: use strerror_r instead
+  if ((errmsg = strerror(errno)) != NULL) {
+    result = strdup(errmsg);
+  }
+#endif
+  return result;
+}
+

@@ -127,7 +127,7 @@ int main (int argc, char* argv[])
   char* errmsg;
   //prepare for connection
   proxysocket_initialize();
-  proxysocketconfig proxy = proxysocketconfig_create_direct();
+  proxysocketconfig proxy = proxysocketconfig_create_direct(5);
   if (verbose >= 0)
     proxysocketconfig_set_logging(proxy, logger, (int*)&verbose);
   if (proxydns)

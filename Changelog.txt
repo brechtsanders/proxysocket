@@ -1,5 +1,13 @@
 0.1.7
 
+2019-07-09  Brecht Sanders  https://github.com/brechtsanders/
+
+  * added timeout parameter to proxysocketconfig_create_direct()
+  * added timeout parameter to proxysocketconfig_create()
+  * added socket_get_error_message()
+
+0.1.7
+
 2018-10-26  Brecht Sanders  https://github.com/brechtsanders/
 
   * improved ipify example application check for and report errors
