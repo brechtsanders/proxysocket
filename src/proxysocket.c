@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <errno.h>
 #ifndef SOCKET_ERROR
 #define SOCKET_ERROR -1
 #endif
