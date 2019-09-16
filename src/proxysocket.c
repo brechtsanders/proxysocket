@@ -915,13 +915,15 @@ DLL_EXPORT_PROXYSOCKET void socket_set_timeout (SOCKET sock, unsigned int timeou
 {
 #ifdef __WIN32__
   DWORD timeoutdata = timeout * 1000;
+  setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutdata, sizeof(timeoutdata));
+  setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeoutdata, sizeof(timeoutdata));
 #else
   struct timeval timeoutdata;
   timeoutdata.tv_sec = timeout;
   timeoutdata.tv_usec = 0;
+  setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const void*)&timeoutdata, sizeof(timeoutdata));
+  setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const void*)&timeoutdata, sizeof(timeoutdata));
 #endif
-  setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeoutdata, sizeof(timeoutdata));
-  setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeoutdata, sizeof(timeoutdata));
 }
 
 #define READ_BUFFER_SIZE 128
