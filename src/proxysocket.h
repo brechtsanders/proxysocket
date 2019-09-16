@@ -50,7 +50,7 @@ extern "C" {
 /*! \brief minor version number */
 #define PROXYSOCKET_VERSION_MINOR 1
 /*! \brief micro version number */
-#define PROXYSOCKET_VERSION_MICRO 6
+#define PROXYSOCKET_VERSION_MICRO 8
 /*! @} */
 
 /*! \brief proxy types
@@ -122,13 +122,12 @@ DLL_EXPORT_PROXYSOCKET int proxysocket_initialize ();
 typedef struct proxysocketconfig_struct* proxysocketconfig;
 
 /*! \brief create proxy information data structure set up for direct connection
- * \param  timeout     timeout in seconds (0 to disable)
  * \return proxy information data structure on success or NULL on failure
  * \sa     proxysocketconfig_create()
  * \sa     proxysocketconfig_add_proxy()
  * \sa     proxysocketconfig_free()
  */
-DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct (unsigned int timeout);
+DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct ();
 
 /*! \brief create proxy information data structure
  * \param  proxytype   proxy type (one of the PROXYSOCKET_TYPE_ constants)
@@ -136,13 +135,12 @@ DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct (unsign
  * \param  proxyport   proxy port number (or when proxytype is PROXYSOCKET_TYPE_NONE port to bind to if non-zero)
  * \param  proxyuser   proxy authentication login or NULL for none
  * \param  proxypass   proxy authentication password or NULL for none
- * \param  timeout     timeout in seconds (0 to disable)
  * \return proxy information data structure on success or NULL on failure
  * \sa     proxysocketconfig_create_direct()
  * \sa     proxysocketconfig_add_proxy()
  * \sa     proxysocketconfig_free()
  */
-DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create (int proxytype, const char* proxyhost, uint16_t proxyport, const char* proxyuser, const char* proxypass, unsigned int timeout);
+DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create (int proxytype, const char* proxyhost, uint16_t proxyport, const char* proxyuser, const char* proxypass);
 
 /*! \brief add a proxy method to proxy information data structure (multiple can be daisy chained)
  * \param  proxy       proxy information as returned by proxysocketconfig_create()
@@ -181,6 +179,14 @@ DLL_EXPORT_PROXYSOCKET char* proxysocketconfig_get_description (proxysocketconfi
  */
 DLL_EXPORT_PROXYSOCKET void proxysocketconfig_set_logging (proxysocketconfig proxy, proxysocketconfig_log_fn log_fn, void* userdata);
 
+/*! \brief configure connection timeouts
+ * \param  proxy       proxy information as returned by proxysocketconfig_create()
+ * \param  sendtimeout send timeout in milliseconds (0 for no timeout)
+ * \param  recvtimeout send timeout in milliseconds (0 for no timeout)
+ * \sa     proxysocketconfig_create()
+ */
+DLL_EXPORT_PROXYSOCKET void proxysocketconfig_set_timeout (proxysocketconfig proxy, uint32_t sendtimeout, uint32_t recvtimeout);
+
 /*! \brief specify where name resolution is done
  * \param  proxy       proxy information as returned by proxysocketconfig_create()
  * \param  proxy_dns   perform DNS lookup on the proxy server if non-zero or on client if zero (default)
@@ -217,7 +223,7 @@ DLL_EXPORT_PROXYSOCKET void proxysocket_disconnect (proxysocketconfig proxy, SOC
  * \param  timeout     timeout in seconds (0 to disable)
  * \sa     proxysocket_connect()
  */
-DLL_EXPORT_PROXYSOCKET void socket_set_timeout (SOCKET sock, unsigned int timeout);
+DLL_EXPORT_PROXYSOCKET void socket_set_timeouts_milliseconds (SOCKET sock, uint32_t sendtimeout, uint32_t recvtimeout);
 
 /*! \brief read a line from a socket
  * \param  sock        network socket as returned by proxysocket_connect() or socket()

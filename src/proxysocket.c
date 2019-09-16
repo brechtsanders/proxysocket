@@ -44,7 +44,8 @@ struct proxysocketconfig_struct {
   proxysocketconfig_log_fn log_function;
   void* log_data;
   int8_t proxy_dns;
-  unsigned int timeout;
+  uint32_t sendtimeout;
+  uint32_t recvtimeout;
 };
 
 struct proxyinfo_struct {
@@ -375,7 +376,7 @@ DLL_EXPORT_PROXYSOCKET int proxysocket_initialize ()
   return 0;
 }
 
-DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct (unsigned int timeout)
+DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct ()
 {
   struct proxysocketconfig_struct* proxy;
   if ((proxy = (struct proxysocketconfig_struct*)malloc(sizeof(struct proxysocketconfig_struct))) == NULL)
@@ -384,7 +385,8 @@ DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct (unsign
   proxy->log_function = NULL;
   proxy->log_data = NULL;
   proxy->proxy_dns = USE_CLIENT_DNS;
-  proxy->timeout = timeout;
+  proxy->sendtimeout = 0;
+  proxy->recvtimeout = 0;
   if (proxysocketconfig_add_proxy(proxy, PROXYSOCKET_TYPE_NONE, NULL, 0, NULL, NULL) != 0) {
     free(proxy);
     return NULL;
@@ -392,10 +394,10 @@ DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create_direct (unsign
   return proxy;
 }
 
-DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create (int proxytype, const char* proxyhost, uint16_t proxyport, const char* proxyuser, const char* proxypass, unsigned int timeout)
+DLL_EXPORT_PROXYSOCKET proxysocketconfig proxysocketconfig_create (int proxytype, const char* proxyhost, uint16_t proxyport, const char* proxyuser, const char* proxypass)
 {
   struct proxysocketconfig_struct* proxy;
-  proxy = proxysocketconfig_create_direct(timeout);
+  proxy = proxysocketconfig_create_direct();
   if (proxysocketconfig_add_proxy(proxy, proxytype, proxyhost, proxyport, proxyuser, proxypass) != 0) {
     free(proxy);
     return NULL;
@@ -467,6 +469,12 @@ DLL_EXPORT_PROXYSOCKET void proxysocketconfig_set_logging (proxysocketconfig pro
 {
   proxy->log_function = log_fn;
   proxy->log_data = userdata;
+}
+
+DLL_EXPORT_PROXYSOCKET void proxysocketconfig_set_timeout (proxysocketconfig proxy, uint32_t sendtimeout, uint32_t recvtimeout)
+{
+  proxy->sendtimeout = sendtimeout;
+  proxy->recvtimeout = recvtimeout;
 }
 
 DLL_EXPORT_PROXYSOCKET void proxysocketconfig_use_proxy_dns (proxysocketconfig proxy, int proxy_dns)
@@ -557,7 +565,7 @@ SOCKET proxyinfo_connect (proxysocketconfig proxy, struct proxyinfo_struct* prox
         ERROR_DISCONNECT_AND_ABORT("Error binding socket to: %s:%lu", inet_ntoa(*(struct in_addr*)&local_sock_addr.sin_addr.s_addr), (unsigned long)ntohs(local_sock_addr.sin_port))
     }
     //set connection timeout
-    socket_set_timeout(sock, proxy->timeout);
+    socket_set_timeouts_milliseconds(sock, proxy->sendtimeout, proxy->recvtimeout);
     //connect to host
     struct sockaddr_in remote_sock_addr;
     remote_sock_addr.sin_family = AF_INET;
@@ -911,18 +919,22 @@ DLL_EXPORT_PROXYSOCKET void proxysocket_disconnect (proxysocketconfig proxy, SOC
     write_log_info(proxy, PROXYSOCKET_LOG_INFO, "Connection closed");
 }
 
-DLL_EXPORT_PROXYSOCKET void socket_set_timeout (SOCKET sock, unsigned int timeout)
+DLL_EXPORT_PROXYSOCKET void socket_set_timeouts_milliseconds (SOCKET sock, uint32_t sendtimeout, uint32_t recvtimeout)
 {
 #ifdef __WIN32__
-  DWORD timeoutdata = timeout * 1000;
-  setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutdata, sizeof(timeoutdata));
+  DWORD timeoutdata;
+  timeoutdata = sendtimeout;
   setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeoutdata, sizeof(timeoutdata));
+  timeoutdata = recvtimeout;
+  setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutdata, sizeof(timeoutdata));
 #else
   struct timeval timeoutdata;
-  timeoutdata.tv_sec = timeout;
-  timeoutdata.tv_usec = 0;
-  setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const void*)&timeoutdata, sizeof(timeoutdata));
+  timeoutdata.tv_sec = sendtimeout / 1000;
+  timeoutdata.tv_usec = (sendtimeout % 1000) * 1000;
   setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const void*)&timeoutdata, sizeof(timeoutdata));
+  timeoutdata.tv_sec = recvtimeout / 1000;
+  timeoutdata.tv_usec = (recvtimeout % 1000) * 1000;
+  setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const void*)&timeoutdata, sizeof(timeoutdata));
 #endif
 }
 

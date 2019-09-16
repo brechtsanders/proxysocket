@@ -1,10 +1,10 @@
-0.1.7
+0.1.8
 
-2019-07-09  Brecht Sanders  https://github.com/brechtsanders/
+2019-09-16  Brecht Sanders  https://github.com/brechtsanders/
 
-  * added timeout parameter to proxysocketconfig_create_direct()
-  * added timeout parameter to proxysocketconfig_create()
   * added socket_get_error_message()
+  * added proxysocketconfig_set_timeout()
+  * added socket_set_timeouts_milliseconds()
 
 0.1.7
 
