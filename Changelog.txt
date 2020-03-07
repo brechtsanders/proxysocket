@@ -3,7 +3,7 @@
 2020-03-07  Brecht Sanders  https://github.com/brechtsanders/
 
   * added Travis CI configuration file: .travis.yml
-  * fixed superfluous parameter to proxysocketconfig_create_direct in proxysocket.c
+  * fixed superfluous parameter to proxysocketconfig_create_direct() in proxysocket.c
   
 0.1.8
 
