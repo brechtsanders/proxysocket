@@ -1,5 +1,4 @@
 language: c
-sudo: false
 jobs:
   include:
     - name: "Linux GCC"
@@ -8,13 +7,12 @@ jobs:
     - name: "Linux Clang"
       os: linux
       compiler: clang
-#    - name: "Mac OS X Clang"
-#      os: osx
-#      compiler: clang
+    - name: "Mac OS X Clang"
+      os: osx
+      compiler: clang
 
 before_install:
   - sudo apt-get -y install doxygen
   
 script:
-  - mkdir -p build_result
   - make install PREFIX=build_result
