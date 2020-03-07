@@ -15,9 +15,11 @@ addons:
   apt:
     packages:
       - doxygen
+      - graphviz
   homebrew:
     packages:
       - doxygen
+      - graphviz
     
 script:
   - make install PREFIX=build_result
