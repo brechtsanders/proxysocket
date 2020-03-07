@@ -893,7 +893,7 @@ DLL_EXPORT_PROXYSOCKET SOCKET proxysocket_connect (proxysocketconfig proxy, cons
   } else {
     //use direct connection if proxy is NULL
     SOCKET result;
-    if ((proxy = proxysocketconfig_create_direct(0)) == NULL)
+    if ((proxy = proxysocketconfig_create_direct()) == NULL)
       return SOCKET_ERROR;
     result = proxyinfo_connect(proxy, proxy->proxyinfolist, dsthost, dstport, errmsg);
     proxysocketconfig_free(proxy);

@@ -20,6 +20,6 @@ addons:
     packages:
       - doxygen
       - graphviz
-    
+
 script:
-  - make install PREFIX=build_result
+  - make install PREFIX=$(pwd)/build_result
