@@ -1,16 +1,16 @@
 ifeq ($(OS),)
-OS = $(shell uname -s)
-ifneq ($(findstring Windows,$(OS))$(findstring MINGW32,$(OS))$(findstring MSYS,$(OS)),)
-OS = Windows_NT
-endif
+  OS = $(shell uname -s)
+  ifneq ($(findstring Windows,$(OS))$(findstring MINGW32,$(OS))$(findstring MSYS,$(OS)),)
+    OS = Windows_NT
+  endif
 endif
 PLATFORMNAME = $(OS)
 ifeq ($(PLATFORMNAME),Windows_NT)
-ifneq ($(findstring x86_64,$(shell gcc --version)),)
-PLATFORMNAME = win64
-else ifneq ($(findstring i686,$(shell gcc --version)),)
-PLATFORMNAME = win32
-endif
+  ifneq ($(findstring x86_64,$(shell gcc --version)),)
+    PLATFORMNAME = win64
+  else ifneq ($(findstring i686,$(shell gcc --version)),)
+    PLATFORMNAME = win32
+  endif
 endif
 PREFIX = /usr/local
 CC   = gcc
@@ -19,30 +19,38 @@ AR   = ar
 LIBPREFIX = lib
 LIBEXT = .a
 ifeq ($(OS),Windows_NT)
-BINEXT = .exe
-SOEXT = .dll
+  BINEXT = .exe
+  SOEXT  = .dll
 else ifeq ($(OS),Darwin)
-BINEXT =
-SOEXT = .dylib
+  BINEXT =
+  SOEXT  = .dylib
 else
-BINEXT =
-SOEXT = .so
+  BINEXT =
+  SOEXT  = .so
 endif
 INCS = -Iinclude -Isrc
-CFLAGS = $(INCS) -Os
+CFLAGS   = $(INCS) -Os
 CPPFLAGS = $(INCS) -Os
+ifeq ($(OS),Windows_NT)
+  # detect if asprintf exists (needed for recent MinGW-w64 versions)
+  CHECK_ASPRINTF=$(shell echo -e "#define _GNU_SOURCE\n#include <stdio.h>\nint main() {\n char* p;\n asprintf(&p, \".\");\n return 0;\n}\n"|gcc -xc - -ocheck_asprintf.exe -Wall && rm -f check_asprintf.exe && echo OK)
+  ifeq ($(CHECK_ASPRINTF),OK)
+    CFLAGS   += -DHAVE_VASPRINTF -DHAVE_ASPRINTF
+    CXXFLAGS += -DHAVE_VASPRINTF -DHAVE_ASPRINTF
+  endif
+endif
 STATIC_CFLAGS = -DBUILD_PROXYSOCKET_STATIC
 SHARED_CFLAGS = -DBUILD_PROXYSOCKET_DLL
 LIBS =
 LDFLAGS =
 ifeq ($(OS),Darwin)
-CFLAGS += -I/opt/local/include -I/opt/local/lib/libzip/include
-LDFLAGS += -L/opt/local/lib
-#CFLAGS += -arch i386 -arch x86_64
-#LDFLAGS += -arch i386 -arch x86_64
-STRIPFLAG =
+  CFLAGS += -I/opt/local/include -I/opt/local/lib/libzip/include
+  LDFLAGS += -L/opt/local/lib
+  #CFLAGS += -arch i386 -arch x86_64
+  #LDFLAGS += -arch i386 -arch x86_64
+  STRIPFLAG =
 else
-STRIPFLAG = -s
+  STRIPFLAG = -s
 endif
 MKDIR = mkdir -p
 RM = rm -f
@@ -55,16 +63,16 @@ PROXYSOCKET_OBJ = src/proxysocket.o
 PROXYSOCKET_LDFLAGS =
 PROXYSOCKET_SHARED_LDFLAGS =
 ifneq ($(OS),Windows_NT)
-SHARED_CFLAGS += -fPIC
+  SHARED_CFLAGS += -fPIC
 endif
 ifeq ($(OS),Windows_NT)
-PROXYSOCKET_SHARED_LDFLAGS += -Wl,--out-implib,$@$(LIBEXT) -lws2_32
-PROXYSOCKET_LDFLAGS += -lws2_32
+  PROXYSOCKET_SHARED_LDFLAGS += -Wl,--out-implib,$@$(LIBEXT) -lws2_32
+  PROXYSOCKET_LDFLAGS += -lws2_32
 endif
 ifeq ($(OS),Darwin)
-OS_LINK_FLAGS = -dynamiclib -o $@
+  OS_LINK_FLAGS = -dynamiclib -o $@
 else
-OS_LINK_FLAGS = -shared -Wl,-soname,$@ $(STRIPFLAG)
+  OS_LINK_FLAGS = -shared -Wl,-soname,$@ $(STRIPFLAG)
 endif
 
 TOOLS_BIN = ipify$(BINEXT)

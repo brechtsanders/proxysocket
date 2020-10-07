@@ -1,3 +1,9 @@
+0.1.10
+
+2020-10-07  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fixed Makefile to detect if asprintf() is defined on Windows (needed for recent versions of MinGW-w64)
+
 0.1.9
 
 2020-03-07  Brecht Sanders  https://github.com/brechtsanders/
