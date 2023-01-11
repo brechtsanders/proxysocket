@@ -1,17 +1,3 @@
-ifeq ($(OS),)
-  OS = $(shell uname -s)
-  ifneq ($(findstring Windows,$(OS))$(findstring MINGW32,$(OS))$(findstring MSYS,$(OS)),)
-    OS = Windows_NT
-  endif
-endif
-PLATFORMNAME = $(OS)
-ifeq ($(PLATFORMNAME),Windows_NT)
-  ifneq ($(findstring x86_64,$(shell gcc --version)),)
-    PLATFORMNAME = win64
-  else ifneq ($(findstring i686,$(shell gcc --version)),)
-    PLATFORMNAME = win32
-  endif
-endif
 PREFIX = /usr/local
 CC   = gcc
 CPP  = g++
@@ -31,6 +17,20 @@ endif
 INCS = -Iinclude -Isrc
 CFLAGS   = $(INCS) -Os
 CPPFLAGS = $(INCS) -Os
+ifeq ($(OS),)
+  OS = $(shell uname -s)
+  ifneq ($(findstring Windows,$(OS))$(findstring MINGW32,$(OS))$(findstring MSYS,$(OS)),)
+    OS = Windows_NT
+  endif
+endif
+PLATFORMNAME = $(OS)
+ifeq ($(PLATFORMNAME),Windows_NT)
+  ifneq ($(findstring x86_64,$(shell $(CC) --version)),)
+    PLATFORMNAME = win64
+  else ifneq ($(findstring i686,$(shell $(CC) --version)),)
+    PLATFORMNAME = win32
+  endif
+endif
 ifeq ($(OS),Windows_NT)
   # detect if asprintf exists (needed for recent MinGW-w64 versions)
   CHECK_ASPRINTF=$(shell echo -e "#define _GNU_SOURCE\n#include <stdio.h>\nint main() {\n char* p;\n asprintf(&p, \".\");\n return 0;\n}\n"|gcc -xc - -ocheck_asprintf.exe -Wall && rm -f check_asprintf.exe && echo OK)

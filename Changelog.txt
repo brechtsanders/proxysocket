@@ -1,3 +1,9 @@
+0.1.11
+
+2023-01-11  Brecht Sanders  https://github.com/brechtsanders/
+
+  * fixed Makefile to support overriding compliler with CC=<compiler>
+
 0.1.10
 
 2020-10-07  Brecht Sanders  https://github.com/brechtsanders/
