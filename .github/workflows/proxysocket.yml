@@ -1,0 +1,51 @@
+name: GitHub-CI for proxysocket
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+#        - {
+#            name: "Windows MSVC", artifact: "Windows-MSVC.tar.xz",
+#            os: windows-latest,
+#            cc: "cl", cxx: "cl",
+#            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+#          }
+        - {
+            name: "Windows MinGW", artifact: "Windows-MinGW.tar.bz2",
+            os: windows-latest,
+            cc: "gcc", cxx: "g++"
+          }
+        - {
+            name: "Ubuntu GCC", artifact: "Linux.tar.bz2",
+            os: ubuntu-latest,
+            cc: "gcc", cxx: "g++"
+          }
+        - {
+            name: "macOS Clang", artifact: "macOS.tar.bz2",
+            os: macos-latest,
+            cc: "clang", cxx: "clang++"
+          }
+    steps:
+    - uses: actions/checkout@v1
+    - name: Compile, install, package
+      run: |
+        make install PREFIX=build_result DOXYGEN= CC=${{ matrix.config.cc }}
+        tar cfj ./${{ matrix.config.artifact }} --strip-components=1 build_result
+#    - name: Pack
+#      run: |
+#        tar cfj ./${{ matrix.config.artifact }} --strip-components=1 build_result
+#    - name: Upload
+#      uses: actions/upload-artifact@v1
+#      with:
+#        path: ./${{ matrix.config.artifact }}
+#        name: ${{ matrix.config.artifact }}
