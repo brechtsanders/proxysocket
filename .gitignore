@@ -1,0 +1,7 @@
+bin/
+obj/
+research/
+*.7z
+TODO.txt
+*.layout
+*.depend
